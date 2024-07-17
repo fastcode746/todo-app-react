@@ -3,40 +3,35 @@ import {
   Text,
   TextInput,
   StyleSheet,
-  Pressable,
   Image,
   TouchableOpacity,
 } from "react-native";
 import React, { useState } from "react";
 import { db } from "../../FirebaseConfig";
 import { useNavigation } from "@react-navigation/native";
-import { collection } from "firebase/firestore";
+import { doc, updateDoc } from "firebase/firestore";
 
 const Detail = ({ route }) => {
-  const todoRef = collection(db, "todos");
   const { item } = route.params;
   const [textHeading, onChangeHeadingText] = useState(item.heading);
   const [imgUrl, setImgUrl] = useState(item.imageUrl);
   const navigation = useNavigation();
 
-  console.log(imgUrl);
-  const updateTodo = () => {
+  const updateTodo = async () => {
     if (textHeading && textHeading.length > 0) {
-      todoRef
-        .doc(item.id)
-        .update({
+      const todoDocRef = doc(db, "todos", item.id);
+      try {
+        await updateDoc(todoDocRef, {
           heading: textHeading,
           imageUrl: imgUrl,
-        })
-        .then(() => {
-          navigation.navigate("Home");
-        })
-        .catch((error) => {
-          alert(error.message);
         });
+        alert("Updated Successfully!");
+        navigation.navigate("Home");
+      } catch (error) {
+        alert(error.message);
+      }
     }
   };
-
   return (
     <View style={styles.container}>
       <View style={styles.imgContainer}>
@@ -55,16 +50,9 @@ const Detail = ({ route }) => {
           value={textHeading}
           placeholder="Enter Name"
         />
-        <Pressable
-          style={styles.buttonUpdate}
-          onPress={() => {
-            updateTodo();
-          }}
-        >
-          <TouchableOpacity style={styles.updateButton}>
-            <Text style={styles.updateButtonText}>Update Details</Text>
-          </TouchableOpacity>
-        </Pressable>
+        <TouchableOpacity style={styles.buttonUpdate} onPress={updateTodo}>
+          <Text style={styles.updateButtonText}>Update Details</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -77,7 +65,7 @@ const styles = StyleSheet.create({
     marginTop: 40,
     justifyContent: "center",
     paddingHorizontal: 15,
-    margin: 10
+    margin: 10,
   },
   textField: {
     height: 40,
