@@ -10,10 +10,20 @@ import { onAuthStateChanged } from "firebase/auth";
 import { FIREBASE_AUTH } from "./FirebaseConfig";
 import { Ionicons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 
 const Stack = createNativeStackNavigator();
 
 const InsideStack = createNativeStackNavigator();
+
+const GradientHeader = () => (
+  <LinearGradient
+    colors={["#6A11CB", "#0E627C"]}
+    style={{ flex: 1 }}
+    start={{ x: 0, y: 0 }}
+    end={{ x: 1, y: 1 }}
+  />
+);
 
 function InsideLayout() {
   return (
@@ -21,7 +31,7 @@ function InsideLayout() {
       initialRouteName="Home"
       screenOptions={{
         headerStyle: {
-          backgroundColor: "#0E627C",
+          height: 100,
         },
         headerTintColor: "#fff",
         headerTitleStyle: {
@@ -29,12 +39,17 @@ function InsideLayout() {
         },
         headerTitleAlign: "center",
         headerBackTitleVisible: false,
+
+        headerBackground: GradientHeader,
       }}
     >
       <InsideStack.Screen
         name="Home"
         component={Home}
-        options={{ headerShown: false }}
+        options={{
+          headerShown: false,
+          headerBackground: null,
+        }}
       />
       <InsideStack.Screen
         name="UserProfile"

@@ -34,7 +34,6 @@ const Home = () => {
   const navigation = useNavigation();
   const todoRef = collection(db, "todos");
   const [image, setImage] = useState(null);
-  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     const q = query(todoRef, orderBy("createdAt", "desc"));
@@ -130,6 +129,9 @@ const Home = () => {
             <Icon name="upload" size={20} color="#fff" />
             <Text style={styles.uploadFileButtonText}>Upload File</Text>
           </TouchableOpacity>
+          {image && (
+            <Text style={styles.imageLabel}>Selected Image</Text>
+          )}
         </SafeAreaView>
       </View>
       <TouchableOpacity style={styles.button} onPress={addTodo}>
@@ -282,5 +284,11 @@ const styles = StyleSheet.create({
   rightContainer: {
     marginLeft: 60,
     marginBottom: 70,
+  },
+  imageLabel:{
+    textAlign: "center",
+    fontSize: 15,
+    fontWeight: "bold",
+    color: "#888888",
   },
 });
