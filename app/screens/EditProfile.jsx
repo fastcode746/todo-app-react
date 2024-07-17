@@ -11,7 +11,6 @@ import {
 
 const EditProfile = () => {
   const [email, setEmail] = useState("yanchui@gmail.com");
-  const [name, setName] = useState("yanchui");
   const [password, setPassword] = useState("ovfTbyVvcd");
 
   const handleChangePicture = () => {
@@ -40,8 +39,6 @@ const EditProfile = () => {
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Email</Text>
         <TextInput value={email} onChangeText={setEmail} style={styles.input} />
-        <Text style={styles.label}>Name</Text>
-        <TextInput value={name} onChangeText={setName} style={styles.input} />
         <Text style={styles.label}>Password</Text>
         <TextInput
           value={password}
