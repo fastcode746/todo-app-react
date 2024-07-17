@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   header: {
-    height: "40%",
+    height: "42%",
     paddingBottom: 20,
   },
   headerView: {

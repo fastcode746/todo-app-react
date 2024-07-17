@@ -188,7 +188,11 @@ const Home = ({ route }) => {
               style={styles.todoIcon}
             />
             <View style={styles.innerContainer}>
-              <Text style={styles.itemHeading}>
+              <Text
+                style={styles.itemHeading}
+                numberOfLines={4}
+                ellipsizeMode="tail"
+              >
                 {item.heading[0].toUpperCase() + item.heading.slice(1)}
               </Text>
               {item.imageUrl && (
