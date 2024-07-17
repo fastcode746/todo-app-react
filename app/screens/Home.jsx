@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { db, FIREBASE_AUTH, storage } from "../../FirebaseConfig";
+import { db, FIREBASE_AUTH } from "../../FirebaseConfig";
 import {
   collection,
   addDoc,
@@ -41,10 +41,11 @@ const Home = () => {
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const todos = [];
       querySnapshot.forEach((doc) => {
-        const { heading } = doc.data();
+        const { heading, imageUrl } = doc.data();
         todos.push({
           id: doc.id,
           heading,
+          imageUrl,
         });
       });
       setTodos(todos);
@@ -57,6 +58,7 @@ const Home = () => {
     if (addData.trim().length > 0) {
       const data = {
         heading: addData,
+        imageUrl: image,
         createdAt: serverTimestamp(),
       };
       addDoc(todoRef, data)
@@ -95,7 +97,7 @@ const Home = () => {
   return (
     <View style={styles.fullScreen}>
       <LinearGradient colors={["#6A11CB", "#0E627C"]} style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.navigate('UserProfile')}>
+        <TouchableOpacity onPress={() => navigation.navigate("UserProfile")}>
           <Image
             source={{
               uri: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?q=80&w=1471&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
@@ -105,16 +107,8 @@ const Home = () => {
         </TouchableOpacity>
         <Text style={styles.headerText}>𝓣𝓸𝓭𝓸 𝓛𝓲𝓼𝓽 </Text>
         <View style={styles.rightContainer}>
-          <TouchableOpacity
-            onPress={() => FIREBASE_AUTH.signOut()}
-            title="Logout"
-          >
-            <Icon
-              name="sign-out"
-              size={30}
-              color="white"
-              style={styles.logoutIcon}
-            />
+          <TouchableOpacity onPress={() => FIREBASE_AUTH.signOut()}>
+            <Icon name="sign-out" size={30} color="white" />
           </TouchableOpacity>
         </View>
       </LinearGradient>
@@ -129,18 +123,13 @@ const Home = () => {
           autoCapitalize="none"
         />
         <SafeAreaView>
-          <TouchableOpacity style={styles.uploadFileButton} onPress={handleImageUpload}>
+          <TouchableOpacity
+            style={styles.uploadFileButton}
+            onPress={handleImageUpload}
+          >
             <Icon name="upload" size={20} color="#fff" />
             <Text style={styles.uploadFileButtonText}>Upload File</Text>
           </TouchableOpacity>
-          <View>
-            {image && (
-              <Image
-                source={{ uri: image }}
-                style={{ width: 200, height: 200 }}
-              />
-            )}
-          </View>
         </SafeAreaView>
       </View>
       <TouchableOpacity style={styles.button} onPress={addTodo}>
@@ -185,7 +174,6 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: "row",
-    justifyContent: "space-between",
     paddingTop: 40,
     paddingBottom: 20,
     alignItems: "center",
@@ -247,19 +235,19 @@ const styles = StyleSheet.create({
   },
   container: {
     backgroundColor: "white",
-    padding: 15,
+    padding: 5,
     borderRadius: 15,
     margin: 5,
     marginHorizontal: 10,
     flexDirection: "row",
     alignItems: "center",
     elevation: 3,
+    justifyContent: "space-between",
   },
   innerContainer: {
-    alignItems: "center",
-    flexDirection: "column",
-    marginRight: 45,
-    marginLeft: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    height: 100,
   },
   itemHeading: {
     fontWeight: "bold",
@@ -287,10 +275,9 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   image: {
-    width: 100,
-    height: 100,
+    width: 200,
     borderRadius: 10,
-    marginTop: 10,
+    resizeMode: "cover",
   },
   rightContainer: {
     marginLeft: 60,

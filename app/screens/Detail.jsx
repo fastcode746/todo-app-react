@@ -1,19 +1,32 @@
-import { View, Text, TextInput, StyleSheet, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  Pressable,
+  Image,
+  TouchableOpacity,
+} from "react-native";
 import React, { useState } from "react";
-// import { firebase } from "../db/config";
+import { db } from "../../FirebaseConfig";
 import { useNavigation } from "@react-navigation/native";
+import { collection } from "firebase/firestore";
 
 const Detail = ({ route }) => {
-  const todoRef = firebase.firestore().collection("todos");
-  const [textHeading, onChangeHeadingText] = useState(route.params.item.name);
+  const todoRef = collection(db, "todos");
+  const { item } = route.params;
+  const [textHeading, onChangeHeadingText] = useState(item.heading);
+  const [imgUrl, setImgUrl] = useState(item.imageUrl);
   const navigation = useNavigation();
 
+  console.log(imgUrl);
   const updateTodo = () => {
     if (textHeading && textHeading.length > 0) {
       todoRef
-        .doc(route.params.item.id)
+        .doc(item.id)
         .update({
           heading: textHeading,
+          imageUrl: imgUrl,
         })
         .then(() => {
           navigation.navigate("Home");
@@ -26,20 +39,33 @@ const Detail = ({ route }) => {
 
   return (
     <View style={styles.container}>
-      <TextInput
-        style={styles.textField}
-        onChangeText={onChangeHeadingText}
-        value={textHeading}
-        placeholder="Update Todo"
-      />
-      <Pressable
-        style={styles.buttonUpdate}
-        onPress={() => {
-          updateTodo();
-        }}
-      >
-        <Text>UPDATE TODO</Text>
-      </Pressable>
+      <View style={styles.imgContainer}>
+        <Image
+          source={{
+            uri: imgUrl,
+          }}
+          style={styles.profileImage}
+        />
+      </View>
+      <View style={styles.textContainer}>
+        <Text style={styles.label}>Name</Text>
+        <TextInput
+          style={styles.textField}
+          onChangeText={onChangeHeadingText}
+          value={textHeading}
+          placeholder="Enter Name"
+        />
+        <Pressable
+          style={styles.buttonUpdate}
+          onPress={() => {
+            updateTodo();
+          }}
+        >
+          <TouchableOpacity style={styles.updateButton}>
+            <Text style={styles.updateButtonText}>Update Details</Text>
+          </TouchableOpacity>
+        </Pressable>
+      </View>
     </View>
   );
 };
@@ -48,26 +74,43 @@ export default Detail;
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 80,
-    marginLeft: 15,
-    marginRight: 15,
+    marginTop: 40,
+    justifyContent: "center",
+    paddingHorizontal: 15,
+    margin: 10
   },
-  textField:{
-    marginBottom: 10,
-    padding:10,
-    fontSize: 15,
-    color:'#000000',
-    backgroundColor:'#e0e0e0',
-    borderRadius: 5,
+  textField: {
+    height: 40,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+    marginBottom: 25,
   },
   buttonUpdate: {
-    marginTop: 25,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical:12,
-    paddingHorizontal:32,
-    borderRadius: 4,
-    elevation: 10,
-    backgroundColor: "#0de065",
+    backgroundColor: "#788eec",
+    padding: 15,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  updateButtonText: {
+    color: "#FFF",
+    fontWeight: "bold",
+  },
+  profileImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 3,
+    borderColor: "#ffffff",
+  },
+  imgContainer: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  label: {
+    fontWeight: "600",
+    marginTop: 15,
+  },
+  textContainer: {
+    flexDirection: "column",
   },
 });
