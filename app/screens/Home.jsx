@@ -23,17 +23,24 @@ import {
   query,
   orderBy,
   serverTimestamp,
+  where,
+  getDocs,
 } from "firebase/firestore";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { pickImage, uploadImage } from "../common/UploadFile";
 import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons } from "@expo/vector-icons";
 
-const Home = () => {
+const Home = ({ route }) => {
+  const { user } = route.params;
   const [todos, setTodos] = useState([]);
   const [addData, setAddData] = useState("");
   const navigation = useNavigation();
   const todoRef = collection(db, "todos");
+  const profileRef = collection(db, "profileData");
   const [image, setImage] = useState(null);
+  const [email] = useState(user?.email);
+  const [searchResults, setSearchResults] = useState([]);
 
   useEffect(() => {
     const q = query(todoRef, orderBy("createdAt", "desc"));
@@ -50,8 +57,9 @@ const Home = () => {
       setTodos(todos);
     });
 
+    handleSearch();
     return () => unsubscribe(); // Cleanup subscription on unmount
-  }, []);
+  }, [email]);
 
   const addTodo = () => {
     if (addData.trim().length > 0 && image) {
@@ -94,16 +102,45 @@ const Home = () => {
     setImage(downloadURL);
   }
 
+  const handleSearch = () => {
+    const results = [];
+    if (email) {
+      const q = query(profileRef, where("email", "==", email));
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          const { email, imageUrl, password } = doc.data();
+          results.push({
+            id: doc.id,
+            email,
+            imageUrl,
+            password,
+          });
+        });
+        setSearchResults(results[0]);
+      });
+
+      return () => unsubscribe();
+    } else {
+      console.error("Invalid email:", email);
+      return results;
+    }
+  };
+
   return (
     <View style={styles.fullScreen}>
       <LinearGradient colors={["#6A11CB", "#0E627C"]} style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.navigate("UserProfile")}>
-          <Image
-            source={{
-              uri: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?q=80&w=1471&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            }}
-            style={styles.profileImage}
-          />
+        <TouchableOpacity
+          style={styles.imgContainer}
+          onPress={() => navigation.navigate("UserProfile", { searchResults })}
+        >
+          {searchResults?.imageUrl ? (
+            <Image
+              source={{ uri: searchResults.imageUrl }}
+              style={styles.profileImage}
+            />
+          ) : (
+            <Ionicons name="person" size={60} color="#ccc" />
+          )}
         </TouchableOpacity>
         <Text style={styles.headerText}>𝓣𝓸𝓭𝓸 𝓛𝓲𝓼𝓽 </Text>
         <View style={styles.rightContainer}>
@@ -130,9 +167,7 @@ const Home = () => {
             <Icon name="upload" size={20} color="#fff" />
             <Text style={styles.uploadFileButtonText}>Upload File</Text>
           </TouchableOpacity>
-          {image && (
-            <Text style={styles.imageLabel}>Selected Image</Text>
-          )}
+          {image && <Text style={styles.imageLabel}>Selected Image</Text>}
         </SafeAreaView>
       </View>
       <TouchableOpacity style={styles.button} onPress={addTodo}>
@@ -287,10 +322,21 @@ const styles = StyleSheet.create({
     marginLeft: 60,
     marginBottom: 70,
   },
-  imageLabel:{
+  imageLabel: {
     textAlign: "center",
     fontSize: 15,
     fontWeight: "bold",
     color: "#888888",
+  },
+  imgContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "auto",
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 3,
+    borderColor: "#ccc",
+    backgroundColor: "#ffffff",
   },
 });

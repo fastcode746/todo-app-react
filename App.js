@@ -25,7 +25,9 @@ const GradientHeader = () => (
   />
 );
 
-function InsideLayout() {
+function InsideLayout({ route }) {
+  const { user } = route.params;
+
   return (
     <InsideStack.Navigator
       initialRouteName="Home"
@@ -46,6 +48,7 @@ function InsideLayout() {
       <InsideStack.Screen
         name="Home"
         component={Home}
+        initialParams={{ user }}
         options={{
           headerShown: false,
           headerBackground: null,
@@ -76,8 +79,12 @@ export default function App() {
 
   useEffect(() => {
     onAuthStateChanged(FIREBASE_AUTH, (authUser) => {
-      console.log("auth user", authUser);
-      setUser(authUser);
+      if (authUser) {
+        const { uid, email, displayName, photoURL } = authUser;
+        setUser({ uid, email, displayName, photoURL });
+      } else {
+        setUser(null);
+      }
     });
   }, []);
 
@@ -88,6 +95,7 @@ export default function App() {
           <Stack.Screen
             name="Inside"
             component={InsideLayout}
+            initialParams={{ user }}
             options={{ headerShown: false }}
           />
         ) : (

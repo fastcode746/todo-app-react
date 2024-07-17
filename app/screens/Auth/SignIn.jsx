@@ -11,9 +11,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
 import { FIREBASE_AUTH } from "../../../FirebaseConfig";
-import {
-  signInWithEmailAndPassword,
-} from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -36,14 +34,14 @@ const SignIn = () => {
     }
   };
 
-  return (   
+  return (
     <View style={styles.container}>
       <LinearGradient colors={["#6A11CB", "#0E627C"]} style={styles.header}>
         <View style={styles.headerView}>
           <Text style={styles.headerText}>Don't have an account?</Text>
           <TouchableOpacity
             style={styles.getStartedButton}
-            onPress={() => navigation.navigate('SignUp')}
+            onPress={() => navigation.navigate("SignUp")}
           >
             <Text style={styles.getStarted}>Get Started</Text>
           </TouchableOpacity>

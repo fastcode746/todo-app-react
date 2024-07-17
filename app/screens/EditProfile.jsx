@@ -8,19 +8,41 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
+import { pickImage, uploadImage } from "../common/UploadFile";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "../../FirebaseConfig";
+import { useNavigation } from "@react-navigation/native";
 
-const EditProfile = () => {
-  const [email, setEmail] = useState("yanchui@gmail.com");
-  const [password, setPassword] = useState("ovfTbyVvcd");
+const EditProfile = ({ route }) => {
+  const { searchResults } = route.params;
+  const [email, setEmail] = useState(searchResults?.email);
+  const [password, setPassword] = useState(searchResults?.password);
+  const [image, setImage] = useState(searchResults?.imageUrl);
+  const navigation = useNavigation();
 
-  const handleChangePicture = () => {
-    // Function to handle picture change logic
-    alert("Change Picture Clicked!");
-  };
+  async function handleImageUpload() {
+    const uri = await pickImage();
+    if (!uri) return; // User canceled the image picker
+    const path = `images/${Date.now()}_img.png`; // Define the path in storage
+    const downloadURL = await uploadImage(uri, path);
+    console.log("Uploaded image URL:", downloadURL);
+    setImage(downloadURL);
+  }
 
-  const handleUpdate = () => {
-    // Function to handle update profile logic
-    alert("Update Profile Clicked!");
+  const handleUpdate = async () => {
+    if (image) {
+      const profileRef = doc(db, "profileData", searchResults.id);
+      await updateDoc(profileRef, {
+        imageUrl: image,
+      })
+        .then(() => {
+          alert("Updated Successfully!");
+          navigation.navigate("Home");
+        })
+        .catch((error) => {
+          alert(error.message);
+        });
+    }
   };
 
   return (
@@ -28,23 +50,29 @@ const EditProfile = () => {
       <View style={styles.profileContainer}>
         <Image
           source={{
-            uri: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?q=80&w=1471&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            uri: image,
           }}
           style={styles.profileImage}
         />
-        <TouchableOpacity onPress={handleChangePicture}>
+        <TouchableOpacity onPress={handleImageUpload}>
           <Text style={styles.changePictureText}>Change Picture</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Email</Text>
-        <TextInput value={email} onChangeText={setEmail} style={styles.input} />
+        <TextInput
+          value={email}
+          onChangeText={setEmail}
+          style={styles.input}
+          editable={false}
+        />
         <Text style={styles.label}>Password</Text>
         <TextInput
           value={password}
           onChangeText={setPassword}
           secureTextEntry
           style={styles.input}
+          editable={false}
         />
       </View>
       <TouchableOpacity style={styles.updateButton} onPress={handleUpdate}>

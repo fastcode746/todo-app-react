@@ -1,241 +1,3 @@
-// import React, { useState } from "react";
-// import {
-//   View,
-//   Text,
-//   TextInput,
-//   TouchableOpacity,
-//   StyleSheet,
-//   Image,
-//   ActivityIndicator,
-// } from "react-native";
-// import { LinearGradient } from "expo-linear-gradient";
-// import { useNavigation } from "@react-navigation/native";
-// import { FIREBASE_AUTH } from "../../../FirebaseConfig";
-// import { createUserWithEmailAndPassword } from "firebase/auth";
-
-// const SignUp = () => {
-//   const [email, setEmail] = useState("");
-//   const [password, setPassword] = useState("");
-//   const [loading, setLoading] = useState(false);
-//   const auth = FIREBASE_AUTH;
-
-//   const navigation = useNavigation();
-
-//   const signUp = async () => {
-//     setLoading(true);
-//     try {
-//       const response = await createUserWithEmailAndPassword(
-//         auth,
-//         email,
-//         password
-//       );
-//       console.log(response);
-//     } catch (error) {
-//       console.log(error);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   return (
-//     <View style={styles.container}>
-//       <LinearGradient colors={["#6A11CB", "#0E627C"]} style={styles.header}>
-//         <View style={styles.headerView}>
-//           <Text style={styles.headerText}>Already have an account?</Text>
-//           <TouchableOpacity
-//             style={styles.getStartedButton}
-//             onPress={() => navigation.navigate("SignIn")}
-//           >
-//             <Text style={styles.getStarted}>Sign in</Text>
-//           </TouchableOpacity>
-//         </View>
-//       </LinearGradient>
-
-//       <View style={styles.formContainer}>
-//         <Text style={styles.welcomeBack}>Get started free.</Text>
-//         <Text style={styles.subText}>Enter your details below</Text>
-
-//         <TextInput
-//           placeholder="User Email"
-//           value={email}
-//           onChangeText={setEmail}
-//           style={styles.input}
-//           placeholderTextColor="#888"
-//         />
-//         <TextInput
-//           placeholder="User Name"
-//           value={email}
-//           onChangeText={setEmail}
-//           style={styles.input}
-//           placeholderTextColor="#888"
-//         />
-//         <TextInput
-//           placeholder="Password"
-//           secureTextEntry={true}
-//           value={password}
-//           onChangeText={setPassword}
-//           style={styles.input}
-//           placeholderTextColor="#888"
-//         />
-
-//         {loading ? (
-//           <ActivityIndicator size="large" color="#0000ff" />
-//         ) : (
-//           <>
-//             <TouchableOpacity style={styles.signInButton} onPress={signUp}>
-//               <LinearGradient
-//                 colors={["#6A11CB", "#2575FC"]}
-//                 style={styles.signInGradient}
-//               >
-//                 <Text style={styles.signInText}>Sign up</Text>
-//               </LinearGradient>
-//             </TouchableOpacity>
-//           </>
-//         )}
-//         <TouchableOpacity>
-//           <Text style={styles.forgotPassword}>Forgot your password?</Text>
-//         </TouchableOpacity>
-
-//         <Text style={styles.orText}>Or sign up with</Text>
-
-//         <View style={styles.socialButtonsContainer}>
-//           <TouchableOpacity style={styles.socialButton}>
-//             <Image
-//               source={{
-//                 uri: "https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png",
-//               }}
-//               style={styles.socialIcon}
-//             />
-//             <Text style={styles.socialButtonText}>Google</Text>
-//           </TouchableOpacity>
-//           <TouchableOpacity style={styles.socialButton}>
-//             <Image
-//               source={{
-//                 uri: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Facebook_Logo_%282019%29.png/512px-Facebook_Logo_%282019%29.png",
-//               }}
-//               style={styles.socialIcon}
-//             />
-//             <Text style={styles.socialButtonText}>Facebook</Text>
-//           </TouchableOpacity>
-//         </View>
-//       </View>
-//     </View>
-//   );
-// };
-
-// export default SignUp;
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: "#fff",
-//   },
-//   header: {
-//     height: "30%",
-//     paddingBottom: 20,
-//   },
-//   headerView: {
-//     flexDirection: "row",
-//     justifyContent: "flex-end",
-//     gap: 10,
-//     marginTop: 40,
-//     marginRight: 20,
-//   },
-//   headerText: {
-//     color: "#fff",
-//     fontSize: 16,
-//     paddingVertical: 10,
-//   },
-//   getStarted: {
-//     fontWeight: "bold",
-//   },
-//   getStartedButton: {
-//     backgroundColor: "rgba(255, 255, 255, 0.2)",
-//     paddingVertical: 10,
-//     paddingHorizontal: 20,
-//     borderRadius: 15,
-//   },
-//   formContainer: {
-//     flex: 1,
-//     backgroundColor: "#fff",
-//     borderTopLeftRadius: 30,
-//     borderTopRightRadius: 30,
-//     padding: 20,
-//     marginTop: -30,
-//     alignItems: "center",
-//   },
-//   welcomeBack: {
-//     fontSize: 28,
-//     fontWeight: "bold",
-//     marginBottom: 10,
-//   },
-//   subText: {
-//     color: "#888",
-//     marginBottom: 20,
-//   },
-//   input: {
-//     width: "100%",
-//     height: 50,
-//     borderRadius: 25,
-//     backgroundColor: "#f5f5f5",
-//     paddingHorizontal: 20,
-//     fontSize: 16,
-//     marginBottom: 15,
-//     color: "#333",
-//     borderColor: "#f5f5f5",
-//     bordersWidth: 1,
-//   },
-//   signInButton: {
-//     width: "100%",
-//     height: 50,
-//     borderRadius: 10,
-//     overflow: "hidden",
-//     marginTop: 10,
-//     marginBottom: 20,
-//   },
-//   signInGradient: {
-//     flex: 1,
-//     justifyContent: "center",
-//     alignItems: "center",
-//   },
-//   signInText: {
-//     color: "#fff",
-//     fontSize: 18,
-//     fontWeight: "bold",
-//   },
-//   forgotPassword: {
-//     color: "#888",
-//     marginBottom: 20,
-//   },
-//   orText: {
-//     color: "#888",
-//     marginBottom: 20,
-//   },
-//   socialButtonsContainer: {
-//     flexDirection: "row",
-//     justifyContent: "space-between",
-//     width: "80%",
-//   },
-//   socialButton: {
-//     flexDirection: "row",
-//     alignItems: "center",
-//     backgroundColor: "#f5f5f5",
-//     padding: 10,
-//     borderRadius: 25,
-//     width: "48%",
-//     justifyContent: "center",
-//   },
-//   socialIcon: {
-//     width: 24,
-//     height: 24,
-//     marginRight: 10,
-//   },
-//   socialButtonText: {
-//     fontSize: 16,
-//     color: "#333",
-//   },
-// });
-
 import React, { useState } from "react";
 import {
   View,
@@ -267,33 +29,33 @@ const SignUp = () => {
   const signUp = async () => {
     setLoading(true);
     try {
-      const response = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      console.log(response);
       if (email && password && image) {
-        const imageUrl = await uploadImage(image, response.user.uid);
+        const response = await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+        console.log(response);
+
+        const profileImageUrl = await uploadImage(image, response.user.uid);
         const data = {
-          email: email,
+          email: email.toLowerCase(),
           password: password,
-          imageUrl: imageUrl,
+          imageUrl: profileImageUrl,
           createdAt: serverTimestamp(),
         };
-        addDoc(todoRef, data)
-          .then(() => {
-            setEmail("");
-            setPassword("");
-            setImage("");
-            Keyboard.dismiss();
-          })
-          .catch((error) => {
-            alert("Failed to add profile data: " + error.message);
-          });
+
+        await addDoc(todoRef, data);
+        setEmail("");
+        setPassword("");
+        setImage("");
+        Keyboard.dismiss();
+      } else {
+        alert("Required fields are missing");
       }
     } catch (error) {
       console.log(error);
+      alert("An error occurred: " + error.message);
     } finally {
       setLoading(false);
     }
