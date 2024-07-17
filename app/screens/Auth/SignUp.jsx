@@ -236,16 +236,6 @@
 //   },
 // });
 
-
-
-
-
-
-
-
-
-
-
 import React, { useState } from "react";
 import {
   View,
@@ -255,57 +245,52 @@ import {
   StyleSheet,
   Image,
   ActivityIndicator,
+  Keyboard,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
-import { FIREBASE_AUTH, FIREBASE_STORAGE } from "../../../FirebaseConfig";
+import { db, FIREBASE_AUTH } from "../../../FirebaseConfig";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import * as ImagePicker from 'expo-image-picker';
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { pickImage, uploadImage } from "../../common/UploadFile";
+import { Ionicons } from "@expo/vector-icons";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [image, setImage] = useState(null);
-  const [uploading, setUploading] = useState(false);
+  const todoRef = collection(db, "profileData");
   const auth = FIREBASE_AUTH;
-  const storage = FIREBASE_STORAGE;
   const navigation = useNavigation();
-
-  const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setImage(result.uri);
-    }
-  };
-
-  const uploadImage = async (uri, userId) => {
-    setUploading(true);
-    const response = await fetch(uri);
-    const blob = await response.blob();
-    const storageRef = ref(storage, `profile_pictures/${userId}`);
-    await uploadBytes(storageRef, blob);
-    const downloadURL = await getDownloadURL(storageRef);
-    setUploading(false);
-    return downloadURL;
-  };
 
   const signUp = async () => {
     setLoading(true);
     try {
-      const response = await createUserWithEmailAndPassword(auth, email, password);
+      const response = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       console.log(response);
-      if (image) {
+      if (email && password && image) {
         const imageUrl = await uploadImage(image, response.user.uid);
-        console.log("Image uploaded to:", imageUrl);
-        // Save imageUrl to user's profile in your database if needed
+        const data = {
+          email: email,
+          password: password,
+          imageUrl: imageUrl,
+          createdAt: serverTimestamp(),
+        };
+        addDoc(todoRef, data)
+          .then(() => {
+            setEmail("");
+            setPassword("");
+            setImage("");
+            Keyboard.dismiss();
+          })
+          .catch((error) => {
+            alert("Failed to add profile data: " + error.message);
+          });
       }
     } catch (error) {
       console.log(error);
@@ -313,6 +298,15 @@ const SignUp = () => {
       setLoading(false);
     }
   };
+
+  async function handleImageUpload() {
+    const uri = await pickImage();
+    if (!uri) return; // User canceled the image picker
+    const path = `images/${Date.now()}_img.png`; // Define the path in storage
+    const downloadURL = await uploadImage(uri, path);
+    console.log("Uploaded image URL:", downloadURL);
+    setImage(downloadURL);
+  }
 
   return (
     <View style={styles.container}>
@@ -329,12 +323,17 @@ const SignUp = () => {
       </LinearGradient>
 
       <View style={styles.formContainer}>
-
         <Text style={styles.welcomeBack}>Create your account</Text>
         <Text style={styles.subText}>Enter your details below</Text>
-        <Image source={{ uri: image || 'https://via.placeholder.com/150' }} style={styles.profileImage} />
-        <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
-          <Text style={styles.uploadButtonText}>Upload Profile Picture</Text>
+        <TouchableOpacity
+          style={styles.imgContainer}
+          onPress={handleImageUpload}
+        >
+          {image ? (
+            <Image source={{ uri: image }} style={styles.profileImage} />
+          ) : (
+            <Ionicons name="person" size={60} color="#ccc" />
+          )}
         </TouchableOpacity>
         <TextInput
           placeholder="User Email"
@@ -405,7 +404,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   header: {
-    height: "21%",
+    height: "25%",
     paddingBottom: 20,
   },
   headerView: {
@@ -439,10 +438,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   profileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginBottom: 20,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 3,
+    borderColor: "#ffffff",
   },
   uploadButton: {
     backgroundColor: "#ddd",
@@ -522,5 +522,16 @@ const styles = StyleSheet.create({
   socialButtonText: {
     fontSize: 16,
     color: "#333",
+  },
+  imgContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "auto",
+    marginBottom: 20,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 3,
+    borderColor: "#ccc",
   },
 });
