@@ -10,6 +10,7 @@ import React, { useState } from "react";
 import { db } from "../../FirebaseConfig";
 import { useNavigation } from "@react-navigation/native";
 import { doc, updateDoc } from "firebase/firestore";
+import { pickImage, uploadImage } from "../common/UploadFile";
 
 const Detail = ({ route }) => {
   const { item } = route.params;
@@ -18,30 +19,42 @@ const Detail = ({ route }) => {
   const navigation = useNavigation();
 
   const updateTodo = async () => {
-    if (textHeading && textHeading.length > 0) {
+    if (textHeading && textHeading.length > 0 && imgUrl) {
       const todoDocRef = doc(db, "todos", item.id);
-      try {
-        await updateDoc(todoDocRef, {
-          heading: textHeading,
-          imageUrl: imgUrl,
+
+      await updateDoc(todoDocRef, {
+        heading: textHeading,
+        imageUrl: imgUrl,
+      })
+        .then(() => {
+          alert("Updated Successfully!");
+          navigation.navigate("Home");
+        })
+        .catch((error) => {
+          alert(error.message);
         });
-        alert("Updated Successfully!");
-        navigation.navigate("Home");
-      } catch (error) {
-        alert(error.message);
-      }
     }
   };
+
+  async function handleImageUpload() {
+    const uri = await pickImage();
+    if (!uri) return; // User canceled the image picker
+    const path = `images/${Date.now()}_img.png`; // Define the path in storage
+    const downloadURL = await uploadImage(uri, path);
+    console.log("Uploaded image URL:", downloadURL);
+    setImgUrl(downloadURL);
+  }
+
   return (
     <View style={styles.container}>
-      <View style={styles.imgContainer}>
+      <TouchableOpacity style={styles.imgContainer} onPress={handleImageUpload}>
         <Image
           source={{
             uri: imgUrl,
           }}
           style={styles.profileImage}
         />
-      </View>
+      </TouchableOpacity>
       <View style={styles.textContainer}>
         <Text style={styles.label}>Name</Text>
         <TextInput

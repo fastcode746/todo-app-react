@@ -54,7 +54,7 @@ const Home = () => {
   }, []);
 
   const addTodo = () => {
-    if (addData.trim().length > 0) {
+    if (addData.trim().length > 0 && image) {
       const data = {
         heading: addData,
         imageUrl: image,
@@ -64,12 +64,13 @@ const Home = () => {
         .then(() => {
           setAddData("");
           Keyboard.dismiss();
+          setImage("");
         })
         .catch((error) => {
           alert("Failed to add todo: " + error.message);
         });
     } else {
-      alert("Please enter some text.");
+      alert("Please enter some text or import some.");
     }
   };
 
@@ -255,6 +256,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 18,
     marginRight: 22,
+    width: 100,
   },
   uploadFileButton: {
     backgroundColor: "#e3d5ca",
