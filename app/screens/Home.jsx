@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -12,7 +12,7 @@ import {
   SafeAreaView,
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { db, FIREBASE_AUTH } from "../../FirebaseConfig";
 import {
   collection,
@@ -60,6 +60,12 @@ const Home = ({ route }) => {
     handleSearch();
     return () => unsubscribe(); // Cleanup subscription on unmount
   }, [email]);
+
+  useFocusEffect(
+    useCallback(() => {
+      handleSearch();
+    }, [email])
+  );
 
   const addTodo = () => {
     if (addData.trim().length > 0 && image) {

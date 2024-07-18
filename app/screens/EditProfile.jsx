@@ -37,7 +37,7 @@ const EditProfile = ({ route }) => {
       })
         .then(() => {
           alert("Updated Successfully!");
-          navigation.navigate("Home");
+          navigation.navigate("Home", { updated: true });
         })
         .catch((error) => {
           alert(error.message);
